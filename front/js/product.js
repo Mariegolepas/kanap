@@ -1,7 +1,7 @@
 showDetailProduct();
 
 // Fetch de l'API récupérant les produits qui utilise le await pour attendre la réponse
-async function getDetailsProduct(productId) {
+export async function getDetailsProduct(productId) {
     try {
         const response = await fetch('http://localhost:3000/api/products/'+productId);
         const product = await response.json();
@@ -47,10 +47,10 @@ async function showDetailProduct() {
         productColorMenu.append(productColor);
     };
     
-    addProductToCart(product.name, product._id);
+    addProductToCart(product.name, product._id, product.imageUrl, product.altTxt);
 }
 
-function addProductToCart(productName, productId) {
+function addProductToCart(productName, productId, productImage, productAltTxt) {
     const cartButton = document.getElementById('addToCart');
     cartButton.addEventListener('click', () => {
         const color = document.getElementById('colors').value;
@@ -60,13 +60,17 @@ function addProductToCart(productName, productId) {
             name : productName,
             id : productId,
             color : color,
-            quantity : quantity,
+            quantity : Number(quantity),
+            image : productImage,
+            altTxt : productAltTxt,
         }
         
-        if(verifyCart(productSave) == 0) {
+        console.log("je suis présent");
+
+        if(verifyCart(productSave) === 0) {
             alert('Vous devez saisir une couleur ou un nombre valide.');
             return;
-        };
+        }
 
         let newProductInCart = [];
         let productInCart = JSON.parse(localStorage.getItem("cart"));
@@ -89,10 +93,12 @@ function addProductToCart(productName, productId) {
         }
         localStorage.setItem("cart", JSON.stringify(newProductInCart));
     })
+
+    //Ajouter message produit bien ajouté + réfléchir à quel endroit le mettre
 }
 
 function verifyCart(productSave) {
-    if(Number(productSave.quantity) > 100 || Number(productSave.quantity) < 1 || productSave.color === "" || !Number.isInteger(productSave.quantity)) {
+    if(productSave.quantity > 100 || productSave.quantity < 1 || productSave.color === "" || !Number.isInteger(productSave.quantity)) {
         return 0;
     } else {
         const productInCart = JSON.parse(localStorage.getItem("cart"));
