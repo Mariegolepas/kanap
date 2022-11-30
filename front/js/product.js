@@ -1,16 +1,6 @@
+import {getDetailsProduct} from './services/modele.js';
+
 showDetailProduct();
-
-// Fetch de l'API récupérant les produits qui utilise le await pour attendre la réponse
-export async function getDetailsProduct(productId) {
-    try {
-        const response = await fetch('http://localhost:3000/api/products/'+productId);
-        const product = await response.json();
-        return product;
-    } catch (error) {
-        console.log(error);
-    }
-}
-
 //Fonction permettant d'afficher le bon produit en fonction de la page où on est
 async function showDetailProduct() {
     let params = (new URL(document.location)).searchParams;
@@ -64,8 +54,6 @@ function addProductToCart(productName, productId, productImage, productAltTxt) {
             image : productImage,
             altTxt : productAltTxt,
         }
-        
-        console.log("je suis présent");
 
         if(verifyCart(productSave) === 0) {
             alert('Vous devez saisir une couleur ou un nombre valide.');

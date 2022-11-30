@@ -1,15 +1,4 @@
-import {getDetailsProduct} from './product.js';
-
-/* // Fetch de l'API récupérant les produits qui utilise le await pour attendre la réponse
-async function getProduct() {
-    try {
-        const response = await fetch('http://localhost:3000/api/products/');
-        const product = await response.json();
-        return product;
-    } catch (error) {
-        console.log(error);
-    }
-} => A ajouter dans la class */
+import {getDetailsProduct} from './services/modele.js';
 
 class Cart {
     constructor() {
@@ -20,9 +9,9 @@ class Cart {
     showCart() {
         const productInCart = JSON.parse(localStorage.getItem('cart'));
         let showProductInCart = document.querySelector('#cart__items');
-        
 
         productInCart.forEach(async (product) => {
+            let productId = product.id;
             const productDetail = await getDetailsProduct(product.id);
             this.productQuantity += product.quantity;
             this.productTotalPrice += product.quantity * productDetail.price;
@@ -90,6 +79,9 @@ class Cart {
             const deleteItem = document.createElement('p');
             deleteItem.className = 'deleteItem';
             deleteItem.textContent = "Supprimer";
+            deleteItem.addEventListener('click', () => {
+                this.deleteFromCart(productId, product.color);
+            });
             contentSettingsDelete.appendChild(deleteItem);
 
             const totalQuantity = document.getElementById('totalQuantity');
@@ -100,21 +92,66 @@ class Cart {
         });
 
     }
+    
+    deleteFromCart(productId, productColor) {
+        let cartProduct = JSON.parse(localStorage.getItem('cart'));
+
+        let newProductInCart = cartProduct.filter((product) => {
+            if (productId === product.id && productColor === product.color) {
+                return false;
+            } else {
+                return true;
+            };
+        });
+        
+        localStorage.setItem('cart', JSON.stringify(newProductInCart));
+        document.location.reload();
+    }
+
+    order() {
+        const order = document.getElementById('order');
+        order.addEventListener('click', () => {
+            //window.location.href = '/confirmation.html?orderId='+'order.id'
+            window.location.assign('/confirmation.html');
+            this.orderAchieved();
+        });
+    }
+
+    orderAchieved() {
+        localStorage.deleteItem('cart');
+    } 
+    
+    changeQuantity(product, quantity) {
+        const effectiveQuantity = document.getElementsByClassName('itemQuantity');
+        effectiveQuantity.addEventListener('onFormInput', () => {
+            //Se servir de la méthode pour la suppression d'un produit
+        }, captureEvents)
+    }
+
 }
+
 
 let newCart = new Cart();
 newCart.showCart();
-
-//Fonction qui affiche le tableau du panier sur notre page web
+contactForm();
         //ADD EVENT LISTENER POUR SUPPR ELEMENT PANIER
 
         //ADD EVENT LISTENER POUR ADD QTE PANIER
 
-function getProductPrice(product) {
-    const productInCart = localStorage.getItem('cart');
-    let price = 0;
-    for (let product of productInCart) {
-        price += productInCart.quantity * product.price;
-    } 
-    return price;
+
+function contactForm() {
+    const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+    firstNameErrorMsg.textContent = "Merci de saisir votre Prénom";
+
+    const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+    lastNameErrorMsg.textContent = "Merci de saisir votre Nom de Famille";
+
+    const addressErrorMsg = document.getElementById('addressErrorMsg');
+    addressErrorMsg.textContent = "Merci de saisir une adresse valide";
+
+    const cityErrorMsg = document.getElementById('cityErrorMsg');
+    cityErrorMsg.textContent = "Merci de saisir une ville valide";
+
+    const emailErrorMsg = document.getElementById('emailErrorMsg');
+    emailErrorMsg.textContent = "Merci de saisir une adresse mail valide";
 }
