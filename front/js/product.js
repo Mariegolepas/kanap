@@ -29,7 +29,7 @@ async function showDetailProduct() {
     //Affiche les différentes options du menu de couleurs du produit
     const productColorMenu = document.querySelector('#colors');
     const productColorArray = product.colors;
-    console.log(productColorArray);
+    
     for (let i = 0; i < productColorArray.length; i++) {
         let productColor = document.createElement('option');
         productColor.setAttribute('value', productColorArray[i]);
@@ -56,7 +56,7 @@ function addProductToCart(productName, productId, productImage, productAltTxt) {
         }
 
         if(verifyCart(productSave) === 0) {
-            alert('Vous devez saisir une couleur ou un nombre valide.');
+            alert('Vous devez saisir une couleur ou un nombre valide (compris entre 0 et 100).');
             return;
         }
 
@@ -65,6 +65,7 @@ function addProductToCart(productName, productId, productImage, productAltTxt) {
 
         if(productInCart == null) {
             newProductInCart.push(productSave);
+            addValidation();
         } else {
             newProductInCart = productInCart.map((product) => {
                 if(product.id === productSave.id && product.color === productSave.color) {
@@ -73,16 +74,15 @@ function addProductToCart(productName, productId, productImage, productAltTxt) {
                 } else {
                     return product;
                 }
-            })
+            });
             let productFind = productInCart.find((product) => product.id === productSave.id && product.color === productSave.color);
             if(productFind === undefined) {
                 newProductInCart.push(productSave);
+                addValidation();
             }
         }
         localStorage.setItem("cart", JSON.stringify(newProductInCart));
     })
-
-    //Ajouter message produit bien ajouté + réfléchir à quel endroit le mettre
 }
 
 function verifyCart(productSave) {
@@ -98,4 +98,15 @@ function verifyCart(productSave) {
         }
         return 1; 
     }
+}
+
+function addValidation() {
+    const cartButton = document.querySelector('#addToCart');
+    const divCartButton = document.querySelector('.item__content__addButton');
+    const addValidationMessageDiv = document.createElement('div');
+    const addValidationMessage = document.createElement('p');
+    addValidationMessage.setAttribute('style', 'color: lightgreen;')
+    addValidationMessage.textContent = 'Produit bien ajouté au panier !';
+    divCartButton.insertBefore(addValidationMessageDiv, cartButton);
+    addValidationMessageDiv.appendChild(addValidationMessage);
 }

@@ -1,9 +1,10 @@
-import {getDetailsProduct} from './services/modele.js';
+import {getDetailsProduct, sendOrder} from './services/modele.js';
 
 class Cart {
     constructor() {
         this.productQuantity = 0;
         this.productTotalPrice = 0;
+        this.orderId = 0;
     }
 
     showCart() {
@@ -70,6 +71,9 @@ class Cart {
             productQuantityInput.setAttribute = ('min', 1);
             productQuantityInput.setAttribute = ('max', 100);
             productQuantityInput.value = product.quantity;
+            productQuantityInput.addEventListener('change', () => {
+                this.changeQuantity(productId, product.color, Number(productQuantityInput.value));
+            });
             contentQuantity.appendChild(productQuantityInput);
     
             const contentSettingsDelete = document.createElement('div');
@@ -97,11 +101,7 @@ class Cart {
         let cartProduct = JSON.parse(localStorage.getItem('cart'));
 
         let newProductInCart = cartProduct.filter((product) => {
-            if (productId === product.id && productColor === product.color) {
-                return false;
-            } else {
-                return true;
-            };
+            return !(productId === product.id && productColor === product.color);
         });
         
         localStorage.setItem('cart', JSON.stringify(newProductInCart));
@@ -111,9 +111,26 @@ class Cart {
     order() {
         const order = document.getElementById('order');
         order.addEventListener('click', () => {
-            //window.location.href = '/confirmation.html?orderId='+'order.id'
-            window.location.assign('/confirmation.html');
+            const firstNameValue = document.getElementById('firstName').value;
+            const lastNameValue = document.getElementById('lastName').value;
+            const addressValue = document.getElementById('address').value;
+            const cityValue = document.getElementById('city').value;
+            const emailValue = document.getElementById('email').value;
+
+            const contact = {
+                contactFirstName: firstNameValue,
+                contactLastName: lastNameValue,
+                contactAddress: addressValue,
+                contactCity: cityValue,
+                contactEmail: emailValue,
+            }
+
+            const cart = JSON.parse(localStorage.getItem('cart'));
+
+            sendOrder(contact, cart, this.orderId)
+            window.location.assign('/confirmation.html?orderId='+this.orderId);
             this.orderAchieved();
+            this.orderId = this.orderId++;
         });
     }
 
@@ -121,37 +138,103 @@ class Cart {
         localStorage.deleteItem('cart');
     } 
     
-    changeQuantity(product, quantity) {
-        const effectiveQuantity = document.getElementsByClassName('itemQuantity');
-        effectiveQuantity.addEventListener('onFormInput', () => {
-            //Se servir de la méthode pour la suppression d'un produit
-        }, captureEvents)
-    }
+    changeQuantity(productId, productColor, productQuantity) {
+        const cart = JSON.parse(localStorage.getItem('cart'));
 
+        const productIndex = cart.findIndex((product) => product.id === productId && product.color === productColor);
+        cart[productIndex].quantity = productQuantity;
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        document.location.reload();
+    }
 }
 
 
 let newCart = new Cart();
 newCart.showCart();
 contactForm();
-        //ADD EVENT LISTENER POUR SUPPR ELEMENT PANIER
-
-        //ADD EVENT LISTENER POUR ADD QTE PANIER
-
+newCart.order();
 
 function contactForm() {
-    const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
-    firstNameErrorMsg.textContent = "Merci de saisir votre Prénom";
+    const emailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[a-z]{2,10}$');
+    const letterRegExp = new RegExp('[a-zA-Z]');
+    const addressRegExp = new RegExp('^[1-9]{1,3}\\s[a-z0-9\\s,\'-]*$', 'i')
+    const cityRegExp = new RegExp('^[1-9]{5}\s[a-zA-Z]');
 
-    const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
-    lastNameErrorMsg.textContent = "Merci de saisir votre Nom de Famille";
+    const firstName = document.getElementById('firstName')
+    firstName.addEventListener('change', () => {
+        const firstNameValue = firstName.value;
+        const firstNameTest = letterRegExp.test(firstNameValue);
+        const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
 
-    const addressErrorMsg = document.getElementById('addressErrorMsg');
-    addressErrorMsg.textContent = "Merci de saisir une adresse valide";
+        firstNameErrorMsg.textContent = null;
 
-    const cityErrorMsg = document.getElementById('cityErrorMsg');
-    cityErrorMsg.textContent = "Merci de saisir une ville valide";
+        if (firstNameValue !== null) {
+            if (!firstNameTest) {
+                firstNameErrorMsg.textContent = "Merci de saisir votre Prénom";
+            }
+        };
+    });
 
-    const emailErrorMsg = document.getElementById('emailErrorMsg');
-    emailErrorMsg.textContent = "Merci de saisir une adresse mail valide";
+    const lastName = document.getElementById('lastName');
+    lastName.addEventListener('change', () => {
+        const lastNameValue = lastName.value;
+        const lastNameTest = letterRegExp.test(lastNameValue);
+        const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+
+        lastNameErrorMsg.textContent = null;
+
+        if (lastNameValue !== null) {
+            if (!lastNameTest) {
+                lastNameErrorMsg.textContent = "Merci de saisir votre Nom de Famille";
+            }
+        };
+    });
+    
+
+    const address = document.getElementById('address');
+    address.addEventListener('change', () => {
+        const addressValue = address.value;
+        const addressTest = addressRegExp.test(addressValue);
+        const addressErrorMsg = document.getElementById('addressErrorMsg');
+
+        addressErrorMsg.textContent = null;
+
+        if (addressValue !== null) {
+            if (!addressTest) {
+                addressErrorMsg.textContent = "Merci de saisir une adresse valide";
+            }
+        };
+    });
+    
+
+    const city = document.getElementById('city');
+    city.addEventListener('change', () => {
+        const cityValue = city.value;
+        const cityTest = cityRegExp.test(cityValue);
+        const cityErrorMsg = document.getElementById('cityErrorMsg');
+
+        cityErrorMsg.textContent = null;
+
+        if (cityValue !== null) {
+            if (!cityTest) {
+                cityErrorMsg.textContent = "Merci de saisir une ville valide";
+            }
+        };
+    });
+
+    const email = document.getElementById('email');
+    email.addEventListener('change', () => {
+        const emailValue = email.value;
+        const emailTest = emailRegExp.test(emailValue);
+        const emailErrorMsg = document.getElementById('emailErrorMsg');
+
+        emailErrorMsg.textContent = null;
+
+        if (emailValue !== null) {
+            if (!emailTest) {
+                emailErrorMsg.textContent = "Merci de saisir une adresse mail valide";
+            }
+        };
+    });
 }
