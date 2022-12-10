@@ -10,12 +10,12 @@ export async function getDetailsProduct(productId) {
 }
 
 //Fetch POST du panier vers l'API
-export async function sendOrder(contact, cart, orderId) {
+export async function sendOrder(contact, productsId) {
     try {
         const fetchMethod = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(contact, cart, orderId),
+            body: JSON.stringify({contact: contact, products : productsId}),
         }
         const response = await fetch('http://localhost:3000/api/products/order', fetchMethod);
         const order = await response.json();
