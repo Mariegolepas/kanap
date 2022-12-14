@@ -1,4 +1,4 @@
-import {getDetailsProduct, sendOrder, verifyCart} from './services/modele.js';
+import {getDetailsProduct, sendOrder, verifyCart} from './services/service.js';
 
 /**
  * Classe permettant d'agir sur notre page panier.

@@ -1,4 +1,4 @@
-import {getDetailsProduct, verifyCart} from './services/modele.js';
+import {getDetailsProduct, verifyCart} from './services/service.js';
 
 showDetailProduct();
 
