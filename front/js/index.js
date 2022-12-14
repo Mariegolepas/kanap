@@ -1,4 +1,6 @@
-
+/**
+ * Fonction qui récupère les produits dans l'API
+*/
 async function getListProduct() {
     try {
         const response = await fetch('http://localhost:3000/api/products');
@@ -9,13 +11,16 @@ async function getListProduct() {
     }
 }
 
-//Fonction qui affiche les produits sur notre page web
+/**
+ * Fonction qui affiche les produits sur notre page web.
+ * On y créer les éléments que l'on souhaite voir affichés.
+*/
 async function showProducts() {
     const listProducts = await getListProduct();
     let items = document.querySelector('.items')
     listProducts.forEach(product => {
         const link = document.createElement('a');
-        link.setAttribute('href', `./product.html?id=${product._id}`);
+        link.setAttribute('href', `./product.html?id=${product._id}`); //Permet de rediriger vers la page du produit sur lequel on clique.
         items.appendChild(link);
 
         const article = document.createElement('article');
